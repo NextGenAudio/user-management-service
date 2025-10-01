@@ -47,7 +47,6 @@ public class AuthDTO {
             return new AuthDTO(this.email,this.password,this.token);
         }
     }
-
     public static AuthDTOBuilder builder(){
         return new AuthDTOBuilder();
     }
