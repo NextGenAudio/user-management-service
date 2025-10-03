@@ -13,9 +13,11 @@ import java.util.UUID;
 @Service
 public class ProfileService {
     private final ProfileRepository profileRepository;
+    private final MailService mailService;
 
-    public ProfileService(ProfileRepository profileRepository){
+    public ProfileService(ProfileRepository profileRepository,MailService mailService){
         this.profileRepository=profileRepository;
+        this.mailService=mailService;
     }
     public ProfileDTO signup(ProfileDTO profileDTO) throws UserAlreadyExistException {
         Optional<ProfileEntity> existingUser= profileRepository.findByEmail(profileDTO.getEmail());
@@ -27,6 +29,12 @@ public class ProfileService {
         ProfileEntity profileEntity= toEntity(profileDTO);
         profileEntity.setActivationToken(UUID.randomUUID().toString());
         profileEntity=profileRepository.save(profileEntity);
+
+        //send activation email
+        String activationLink ="http://localhost:3020/profile/activate?token=" + profileEntity.getActivationToken();
+        String subject= "Activate your Email for Money Manager";
+        String body= "Click on the following link to activate your account: " + activationLink;
+        mailService.sendEmail(profileEntity.getEmail(),subject,body);
         return toDTO(profileEntity);
     }
 
