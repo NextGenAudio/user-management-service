@@ -5,6 +5,7 @@ import com.usermanagement.user.application.dto.ProfileDTO;
 import com.usermanagement.user.domain.entity.ProfileEntity;
 import com.usermanagement.user.domain.exception.UserAlreadyExistException;
 import com.usermanagement.user.external.repository.ProfileRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -12,12 +13,14 @@ import java.util.UUID;
 
 @Service
 public class ProfileService {
+    private final PasswordEncoder passwordEncoder;
     private final ProfileRepository profileRepository;
     private final MailService mailService;
 
-    public ProfileService(ProfileRepository profileRepository,MailService mailService){
+    public ProfileService(ProfileRepository profileRepository,MailService mailService,PasswordEncoder passwordEncoder){
         this.profileRepository=profileRepository;
         this.mailService=mailService;
+        this.passwordEncoder=passwordEncoder;
     }
     public ProfileDTO signup(ProfileDTO profileDTO) throws UserAlreadyExistException {
         Optional<ProfileEntity> existingUser= profileRepository.findByEmail(profileDTO.getEmail());
@@ -42,7 +45,7 @@ public class ProfileService {
          return ProfileEntity.builder()
                 .id(profileDTO.getId())
                 .email(profileDTO.getEmail())
-                .password(profileDTO.getPassword())
+                .password(passwordEncoder.encode(profileDTO.getPassword()))
                 .createdAt(profileDTO.getCreatedAt())
                 .updatedAt(profileDTO.getUpdatedAt())
                 .build();
@@ -50,6 +53,7 @@ public class ProfileService {
 
     public ProfileDTO toDTO(ProfileEntity profileEntity){
         return ProfileDTO.builder()
+                .id(profileEntity.getId())
                 .email(profileEntity.getEmail())
                 .createdAt(profileEntity.getCreatedAt())
                 .updatedAt(profileEntity.getUpdatedAt())
