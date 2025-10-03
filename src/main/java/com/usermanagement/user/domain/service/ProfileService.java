@@ -3,9 +3,11 @@ package com.usermanagement.user.domain.service;
 import com.usermanagement.user.application.dto.AuthDTO;
 import com.usermanagement.user.application.dto.ProfileDTO;
 import com.usermanagement.user.domain.entity.ProfileEntity;
+import com.usermanagement.user.domain.exception.UserAlreadyExistException;
 import com.usermanagement.user.external.repository.ProfileRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -15,7 +17,13 @@ public class ProfileService {
     public ProfileService(ProfileRepository profileRepository){
         this.profileRepository=profileRepository;
     }
-    public ProfileDTO signup(ProfileDTO profileDTO) {
+    public ProfileDTO signup(ProfileDTO profileDTO) throws UserAlreadyExistException {
+        Optional<ProfileEntity> existingUser= profileRepository.findByEmail(profileDTO.getEmail());
+        if (existingUser.isPresent()) {
+            throw new UserAlreadyExistException(
+                    "User with " + profileDTO.getEmail() + " already exists"
+            );
+        }
         ProfileEntity profileEntity= toEntity(profileDTO);
         profileEntity.setActivationToken(UUID.randomUUID().toString());
         profileEntity=profileRepository.save(profileEntity);
