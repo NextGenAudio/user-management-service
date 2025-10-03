@@ -17,4 +17,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
+    @ExceptionHandler(ActivationFailedException.class)
+    public ResponseEntity<Map<String,String>> handleActicationFail(ActivationFailedException ex){
+        Map<String,String> response=new HashMap<>();
+        response.put("error",ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
 }
