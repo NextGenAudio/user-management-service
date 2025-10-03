@@ -6,7 +6,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 @Entity
-@Table(name="profile")
+@Table(name="users")
 public class ProfileEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,7 +19,8 @@ public class ProfileEntity {
     private LocalDateTime createdAt;
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-    private Boolean isActive;
+    private Boolean isActive=false;
+    private String activationToken;
 
     @PrePersist
     public void prePersist(){
@@ -28,17 +29,34 @@ public class ProfileEntity {
         }
     }
     public ProfileEntity(){}
-    public ProfileEntity(long id, String email, String password, LocalDateTime createdAt, LocalDateTime updatedAt,boolean isActive) {
+    public ProfileEntity(long id, String email, String password, LocalDateTime createdAt, LocalDateTime updatedAt,boolean isActive, String activationToken) {
         this.id = id;
         this.email = email;
         this.password = password;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.isActive=isActive;
+        this.activationToken=activationToken;
     }
     public long getId() {
         return id;
     }
+    public String getActivationToken() {
+        return activationToken;
+    }
+
+    public void setActivationToken(String activationToken) {
+        this.activationToken = activationToken;
+    }
+
+    public Boolean getActive() {
+        return isActive;
+    }
+
+    public void setActive(Boolean active) {
+        isActive = active;
+    }
+
     public void setId(long id) {
         this.id = id;
     }
@@ -50,12 +68,6 @@ public class ProfileEntity {
     }
     public String getPassword() {
         return password;
-    }
-    public boolean isActive() {
-        return isActive;
-    }
-    public void setActive(boolean active) {
-        isActive = active;
     }
     public void setPassword(String password) {
         this.password = password;
@@ -80,16 +92,21 @@ public class ProfileEntity {
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
         private Boolean isActive;
+        private String activationToken;
 
         public ProfileBuilder id(long id){this.id=id; return this;}
         public ProfileBuilder email(String email){this.email=email; return this;}
         public ProfileBuilder password(String password){this.password=password; return this;}
         public ProfileBuilder createdAt(LocalDateTime createdAt){this.createdAt=createdAt; return this;}
         public ProfileBuilder updatedAt(LocalDateTime updatedAt){this.updatedAt=updatedAt; return this;}
-        public ProfileBuilder isActivre(Boolean isActive){this.isActive=isActive; return this;}
+        public ProfileBuilder isActive(Boolean isActive){this.isActive=isActive; return this;}
+        public ProfileBuilder activationToken(String activationToken){this.activationToken=activationToken; return this;}
 
         public ProfileEntity build(){
-            return new ProfileEntity(id,email,password, createdAt,updatedAt,isActive);
+            if (isActive==null){
+                isActive=false;
+            }
+            return new ProfileEntity(id,email,password,createdAt,updatedAt,isActive,activationToken);
         }
     }
     public static ProfileBuilder builder(){
