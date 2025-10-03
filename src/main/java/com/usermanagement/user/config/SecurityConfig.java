@@ -34,7 +34,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "sonex/v1/auth/signup",
-                                "sonex/v1/auth/login"
+                                "sonex/v1/auth/login",
+                                "sonex/v1/auth/activate"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

@@ -3,6 +3,7 @@ package com.usermanagement.user.domain.service;
 import com.usermanagement.user.application.dto.AuthDTO;
 import com.usermanagement.user.application.dto.ProfileDTO;
 import com.usermanagement.user.domain.entity.ProfileEntity;
+import com.usermanagement.user.domain.exception.ActivationFailedException;
 import com.usermanagement.user.domain.exception.UserAlreadyExistException;
 import com.usermanagement.user.external.repository.ProfileRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -34,11 +35,23 @@ public class ProfileService {
         profileEntity=profileRepository.save(profileEntity);
 
         //send activation email
-        String activationLink ="http://localhost:3020/profile/activate?token=" + profileEntity.getActivationToken();
+        String activationLink ="http://localhost:3020/sonex/v1/auth/activate?token=" + profileEntity.getActivationToken();
         String subject= "Activate your Email for Money Manager";
         String body= "Click on the following link to activate your account: " + activationLink;
         mailService.sendEmail(profileEntity.getEmail(),subject,body);
         return toDTO(profileEntity);
+    }
+
+    public String activate (String activationToken){
+        Optional<ProfileEntity> profileEntity=profileRepository.findByActivationToken(activationToken);
+        if(profileEntity.isEmpty()){
+            throw new ActivationFailedException("Activation Failed due to Invalid Token ");
+        }else {
+            ProfileEntity profile=profileEntity.get();
+            profile.setActive(true);
+            profileRepository.save(profile);
+            return "Activation Success";
+        }
     }
 
     public ProfileEntity toEntity(ProfileDTO profileDTO){
@@ -57,6 +70,7 @@ public class ProfileService {
                 .email(profileEntity.getEmail())
                 .createdAt(profileEntity.getCreatedAt())
                 .updatedAt(profileEntity.getUpdatedAt())
+                .activationToken(profileEntity.getActivationToken())
                 .build();
     }
 }
