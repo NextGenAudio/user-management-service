@@ -6,9 +6,16 @@ import com.usermanagement.user.domain.entity.ProfileEntity;
 import com.usermanagement.user.domain.exception.ActivationFailedException;
 import com.usermanagement.user.domain.exception.UserAlreadyExistException;
 import com.usermanagement.user.external.repository.ProfileRepository;
+import com.usermanagement.user.utill.Jwtutil;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -17,11 +24,15 @@ public class ProfileService {
     private final PasswordEncoder passwordEncoder;
     private final ProfileRepository profileRepository;
     private final MailService mailService;
+    private final AuthenticationManager authenticationManager;
+    private final Jwtutil jwtutil;
 
-    public ProfileService(ProfileRepository profileRepository,MailService mailService,PasswordEncoder passwordEncoder){
+    public ProfileService(ProfileRepository profileRepository, MailService mailService, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, Jwtutil jwtutil){
         this.profileRepository=profileRepository;
         this.mailService=mailService;
         this.passwordEncoder=passwordEncoder;
+        this.authenticationManager = authenticationManager;
+        this.jwtutil = jwtutil;
     }
     public ProfileDTO signup(ProfileDTO profileDTO) throws UserAlreadyExistException {
         Optional<ProfileEntity> existingUser= profileRepository.findByEmail(profileDTO.getEmail());
@@ -52,6 +63,44 @@ public class ProfileService {
             profileRepository.save(profile);
             return "Activation Success";
         }
+    }
+
+    public boolean isActive(String email){
+        Optional <ProfileEntity> currentProfile= profileRepository.findByEmail(email);
+        if(currentProfile.isEmpty()){
+            throw new UsernameNotFoundException("User with email "+ email+ " doesn't exists");
+        }else{
+            return Boolean.TRUE.equals(currentProfile.get().getActive());
+        }
+    }
+
+    public Map<String, Object> authenticateAndGenerateToken(AuthDTO authDto){
+        try{
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authDto.getEmail(),authDto.getPassword()));
+            String token= jwtutil.generateToken(authDto.getEmail());
+            return Map.of(
+                    "Access_Token",token,
+                    "User",getPublicProfile(authDto.getEmail())
+            );
+        }catch (Exception e){
+            throw new RuntimeException("Invalid email or password");
+        }
+    }
+    public ProfileEntity getCurrentProfile(){
+        Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+        return profileRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new UsernameNotFoundException("Profile not found with email: "+authentication.getName()));
+    }
+
+    public ProfileDTO getPublicProfile(String email){
+        ProfileEntity currentUser = null;
+        if(email==null){
+            currentUser= getCurrentProfile();
+        }else{
+            currentUser= profileRepository.findByEmail(email)
+                    .orElseThrow(() -> new UsernameNotFoundException("Profile not found with email: "+ email));
+        }
+        return toDTO(currentUser);
     }
 
     public ProfileEntity toEntity(ProfileDTO profileDTO){
