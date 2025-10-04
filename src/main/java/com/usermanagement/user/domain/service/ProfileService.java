@@ -107,7 +107,7 @@ public class ProfileService {
         Optional<ProfileEntity> optionalProfileEntity=profileRepository.findByEmail(authDTO.getEmail());
         if(optionalProfileEntity.isPresent()){
             ProfileEntity profile=optionalProfileEntity.get();
-            profile.setPassword(authDTO.getPassword());
+            profile.setPassword(passwordEncoder.encode(profile.getPassword()));
             profileRepository.save(profile);
             return "Password changed successfully!";
         }else{
