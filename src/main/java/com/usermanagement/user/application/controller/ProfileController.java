@@ -53,4 +53,16 @@ public class ProfileController {
             ));
         }
     }
+
+   @GetMapping("/test")
+    public String changeEmail(){
+        return "hii";
+
+   }
+
+   @PostMapping("/changepassword")
+    public ResponseEntity<String> changePassword(@RequestBody AuthDTO authDTO){
+        String response= profileService.changePassword(authDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+   }
 }

@@ -103,6 +103,18 @@ public class ProfileService {
         return toDTO(currentUser);
     }
 
+    public String changePassword(AuthDTO authDTO){
+        Optional<ProfileEntity> optionalProfileEntity=profileRepository.findByEmail(authDTO.getEmail());
+        if(optionalProfileEntity.isPresent()){
+            ProfileEntity profile=optionalProfileEntity.get();
+            profile.setPassword(authDTO.getPassword());
+            profileRepository.save(profile);
+            return "Password changed successfully!";
+        }else{
+            throw new UsernameNotFoundException("User with email "+authDTO.getEmail()+" doesn't exists");
+        }
+    }
+
     public ProfileEntity toEntity(ProfileDTO profileDTO){
          return ProfileEntity.builder()
                 .id(profileDTO.getId())
