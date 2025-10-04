@@ -1,6 +1,7 @@
 package com.usermanagement.user.domain.service;
 
 import com.usermanagement.user.application.dto.AuthDTO;
+import com.usermanagement.user.application.dto.EmailChangeDTO;
 import com.usermanagement.user.application.dto.ProfileDTO;
 import com.usermanagement.user.domain.entity.ProfileEntity;
 import com.usermanagement.user.domain.exception.ActivationFailedException;
@@ -47,7 +48,7 @@ public class ProfileService {
 
         //send activation email
         String activationLink ="http://localhost:3020/sonex/v1/auth/activate?token=" + profileEntity.getActivationToken();
-        String subject= "Activate your Email for Money Manager";
+        String subject= "Activate your Email for Sonex";
         String body= "Click on the following link to activate your account: " + activationLink;
         mailService.sendEmail(profileEntity.getEmail(),subject,body);
         return toDTO(profileEntity);
@@ -107,12 +108,33 @@ public class ProfileService {
         Optional<ProfileEntity> optionalProfileEntity=profileRepository.findByEmail(authDTO.getEmail());
         if(optionalProfileEntity.isPresent()){
             ProfileEntity profile=optionalProfileEntity.get();
-            profile.setPassword(passwordEncoder.encode(profile.getPassword()));
+            profile.setPassword(passwordEncoder.encode(authDTO.getPassword()));
             profileRepository.save(profile);
             return "Password changed successfully!";
         }else{
             throw new UsernameNotFoundException("User with email "+authDTO.getEmail()+" doesn't exists");
         }
+    }
+
+    public ProfileDTO changeEmail(EmailChangeDTO emailChangeDTO){
+        Optional <ProfileEntity> profile=profileRepository.findByEmail(emailChangeDTO.getOldEmail());
+        if (profile.isPresent()){
+            ProfileEntity profileEntity=profile.get();
+            profileEntity.setEmail(emailChangeDTO.getNewEmail());
+            profileEntity.setActive(Boolean.FALSE);
+            profileRepository.save(profileEntity);
+
+            //send activation email
+            String activationLink ="http://localhost:3020/sonex/v1/auth/activate?token=" + profileEntity.getActivationToken();
+            String subject= "Activate your Email for Sonex";
+            String body= "Click on the following link to activate your account: " + activationLink;
+            mailService.sendEmail(profileEntity.getEmail(),subject,body);
+            return toDTO(profileEntity);
+
+        }else{
+            throw new UsernameNotFoundException("User with email "+emailChangeDTO.getOldEmail()+" doesn't exists");
+        }
+
     }
 
     public ProfileEntity toEntity(ProfileDTO profileDTO){
@@ -131,7 +153,6 @@ public class ProfileService {
                 .email(profileEntity.getEmail())
                 .createdAt(profileEntity.getCreatedAt())
                 .updatedAt(profileEntity.getUpdatedAt())
-                .activationToken(profileEntity.getActivationToken())
                 .build();
     }
 }

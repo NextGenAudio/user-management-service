@@ -1,9 +1,9 @@
 package com.usermanagement.user.application.controller;
 
 import com.usermanagement.user.application.dto.AuthDTO;
+import com.usermanagement.user.application.dto.EmailChangeDTO;
 import com.usermanagement.user.application.dto.ProfileDTO;
 
-import com.usermanagement.user.domain.exception.UserAlreadyExistException;
 import com.usermanagement.user.domain.service.ProfileService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -55,14 +55,18 @@ public class ProfileController {
     }
 
    @GetMapping("/test")
-    public String changeEmail(){
+    public String test(){
         return "hii";
 
    }
-
    @PostMapping("/changepassword")
     public ResponseEntity<String> changePassword(@RequestBody AuthDTO authDTO){
         String response= profileService.changePassword(authDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+   }
+
+   @PostMapping("/changeemail")
+    public ResponseEntity<ProfileDTO> changeEmail(@RequestBody EmailChangeDTO emailChangeDTO){
+       return  ResponseEntity.status(HttpStatus.CREATED).body(profileService.changeEmail(emailChangeDTO));
    }
 }
