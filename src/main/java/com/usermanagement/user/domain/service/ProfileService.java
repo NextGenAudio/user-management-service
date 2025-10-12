@@ -134,7 +134,6 @@ public class ProfileService {
         }else{
             throw new UsernameNotFoundException("User with email "+emailChangeDTO.getOldEmail()+" doesn't exists");
         }
-
     }
 
     public ProfileEntity toEntity(ProfileDTO profileDTO){
@@ -144,6 +143,8 @@ public class ProfileService {
                 .password(passwordEncoder.encode(profileDTO.getPassword()))
                 .createdAt(profileDTO.getCreatedAt())
                 .updatedAt(profileDTO.getUpdatedAt())
+                 .profileImageURL(profileDTO.getProfileImageURL())
+                 .name(profileDTO.getName())
                 .build();
     }
 
@@ -151,8 +152,10 @@ public class ProfileService {
         return ProfileDTO.builder()
                 .id(profileEntity.getId())
                 .email(profileEntity.getEmail())
+                .profileImageURL(profileEntity.getProfileImageURL())
                 .createdAt(profileEntity.getCreatedAt())
                 .updatedAt(profileEntity.getUpdatedAt())
+                .name(profileEntity.getName())
                 .build();
     }
 }

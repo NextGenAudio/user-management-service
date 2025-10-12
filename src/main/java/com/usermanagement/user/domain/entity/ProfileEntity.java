@@ -13,6 +13,7 @@ public class ProfileEntity {
     private long id;
     @Column(unique = true)
     private String email;
+    private String name;
     private String password;
     @Column(updatable = false)
     @CreationTimestamp
@@ -21,6 +22,7 @@ public class ProfileEntity {
     private LocalDateTime updatedAt;
     private Boolean isActive=false;
     private String activationToken;
+    private String profileImageURL;
 
     @PrePersist
     public void prePersist(){
@@ -29,18 +31,42 @@ public class ProfileEntity {
         }
     }
     public ProfileEntity(){}
-    public ProfileEntity(long id, String email, String password, LocalDateTime createdAt, LocalDateTime updatedAt,boolean isActive, String activationToken) {
+
+    public ProfileEntity(String profileImageURL) {
+        this.profileImageURL = profileImageURL;
+    }
+
+    public ProfileEntity(long id, String email, String password, LocalDateTime createdAt, LocalDateTime updatedAt, boolean isActive, String activationToken,String profileImageURL, String name) {
         this.id = id;
         this.email = email;
         this.password = password;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.isActive=isActive;
+        this.profileImageURL = profileImageURL;
         this.activationToken=activationToken;
+        this.name=name;
     }
     public long getId() {
         return id;
     }
+
+    public String getProfileImageURL() {
+        return profileImageURL;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setProfileImageURL(String profileImageURL) {
+        this.profileImageURL = profileImageURL;
+    }
+
     public String getActivationToken() {
         return activationToken;
     }
@@ -93,6 +119,8 @@ public class ProfileEntity {
         private LocalDateTime updatedAt;
         private Boolean isActive;
         private String activationToken;
+        private String profileImageURL;
+        private String name;
 
         public ProfileBuilder id(long id){this.id=id; return this;}
         public ProfileBuilder email(String email){this.email=email; return this;}
@@ -101,12 +129,14 @@ public class ProfileEntity {
         public ProfileBuilder updatedAt(LocalDateTime updatedAt){this.updatedAt=updatedAt; return this;}
         public ProfileBuilder isActive(Boolean isActive){this.isActive=isActive; return this;}
         public ProfileBuilder activationToken(String activationToken){this.activationToken=activationToken; return this;}
+        public ProfileBuilder profileImageURL(String profileImageURL){this.profileImageURL=profileImageURL;return this;}
+        public ProfileBuilder name(String name){this.name=name; return this;}
 
         public ProfileEntity build(){
             if (isActive==null){
                 isActive=false;
             }
-            return new ProfileEntity(id,email,password,createdAt,updatedAt,isActive,activationToken);
+            return new ProfileEntity(id,email,password,createdAt,updatedAt,isActive,activationToken,profileImageURL,name);
         }
     }
     public static ProfileBuilder builder(){
