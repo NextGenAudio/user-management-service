@@ -24,4 +24,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
+    @ExceptionHandler(IncompleteDTOException.class)
+    public ResponseEntity<Map<String,String>> handleIncompleteDTO(IncompleteDTOException ex){
+        Map<String,String> response=new HashMap<>();
+        response.put("error",ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
 }

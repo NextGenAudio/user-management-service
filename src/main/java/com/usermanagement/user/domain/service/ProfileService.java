@@ -5,6 +5,7 @@ import com.usermanagement.user.application.dto.EmailChangeDTO;
 import com.usermanagement.user.application.dto.ProfileDTO;
 import com.usermanagement.user.domain.entity.ProfileEntity;
 import com.usermanagement.user.domain.exception.ActivationFailedException;
+import com.usermanagement.user.domain.exception.IncompleteDTOException;
 import com.usermanagement.user.domain.exception.UserAlreadyExistException;
 import com.usermanagement.user.external.repository.ProfileRepository;
 import com.usermanagement.user.utill.Jwtutil;
@@ -36,6 +37,9 @@ public class ProfileService {
         this.jwtutil = jwtutil;
     }
     public ProfileDTO signup(ProfileDTO profileDTO) throws UserAlreadyExistException {
+        if (profileDTO.getEmail() == null || profileDTO.getPassword() == null) {
+            throw new IncompleteDTOException("Email and Password must not be null");
+        }
         Optional<ProfileEntity> existingUser= profileRepository.findByEmail(profileDTO.getEmail());
         if (existingUser.isPresent()) {
             throw new UserAlreadyExistException(
