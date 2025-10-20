@@ -1,13 +1,14 @@
 package com.usermanagement.user.domain.service;
 
-import com.usermanagement.user.application.dto.AuthDTO;
-import com.usermanagement.user.application.dto.EmailChangeDTO;
-import com.usermanagement.user.application.dto.ProfileDTO;
+import com.usermanagement.user.application.dto.*;
 import com.usermanagement.user.domain.entity.ProfileEntity;
 import com.usermanagement.user.domain.exception.ActivationFailedException;
 import com.usermanagement.user.domain.exception.UserAlreadyExistException;
 import com.usermanagement.user.external.repository.ProfileRepository;
 import com.usermanagement.user.utill.Jwtutil;
+
+import lombok.AllArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -16,9 +17,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ProfileService {
@@ -47,11 +50,21 @@ public class ProfileService {
         profileEntity=profileRepository.save(profileEntity);
 
         //send activation email
-        String activationLink ="http://localhost:3020/sonex/v1/auth/activate?token=" + profileEntity.getActivationToken();
-        String subject= "Activate your Email for Sonex";
-        String body= "Click on the following link to activate your account: " + activationLink;
-        mailService.sendEmail(profileEntity.getEmail(),subject,body);
+        sendActivationEmailAsync(profileEntity);
         return toDTO(profileEntity);
+    }
+
+    @Async // Add this annotation
+    public void sendActivationEmailAsync(ProfileEntity profileEntity) {
+        try {
+            String activationLink = "http://localhost:3020/sonex/v1/auth/activate?token=" + profileEntity.getActivationToken();
+            String subject = "Activate your Email for Sonex";
+            String body = "Click on the following link to activate your account: " + activationLink;
+            mailService.sendEmail(profileEntity.getEmail(), subject, body);
+        } catch (Exception e) {
+            // Log the error but don't fail signup
+            System.err.println("Failed to send activation email: " + e.getMessage());
+        }
     }
 
     public String activate (String activationToken){
@@ -60,7 +73,7 @@ public class ProfileService {
             throw new ActivationFailedException("Activation Failed due to Invalid Token ");
         }else {
             ProfileEntity profile=profileEntity.get();
-            profile.setActive(true);
+            profile.setIsActive(true);
             profileRepository.save(profile);
             return "Activation Success";
         }
@@ -71,7 +84,7 @@ public class ProfileService {
         if(currentProfile.isEmpty()){
             throw new UsernameNotFoundException("User with email "+ email+ " doesn't exists");
         }else{
-            return Boolean.TRUE.equals(currentProfile.get().getActive());
+            return Boolean.TRUE.equals(currentProfile.get().getIsActive());
         }
     }
 
@@ -121,7 +134,7 @@ public class ProfileService {
         if (profile.isPresent()){
             ProfileEntity profileEntity=profile.get();
             profileEntity.setEmail(emailChangeDTO.getNewEmail());
-            profileEntity.setActive(Boolean.FALSE);
+            profileEntity.setIsActive(Boolean.FALSE);
             profileRepository.save(profileEntity);
 
             //send activation email
@@ -138,24 +151,70 @@ public class ProfileService {
 
     public ProfileEntity toEntity(ProfileDTO profileDTO){
          return ProfileEntity.builder()
-                .id(profileDTO.getId())
+                .profileId(profileDTO.getProfileId())
                 .email(profileDTO.getEmail())
                 .password(passwordEncoder.encode(profileDTO.getPassword()))
                 .createdAt(profileDTO.getCreatedAt())
                 .updatedAt(profileDTO.getUpdatedAt())
                  .profileImageURL(profileDTO.getProfileImageURL())
-                 .name(profileDTO.getName())
+                 .firstName(profileDTO.getFirstName())
+                 .lastName(profileDTO.getLastName())
                 .build();
     }
 
     public ProfileDTO toDTO(ProfileEntity profileEntity){
         return ProfileDTO.builder()
-                .id(profileEntity.getId())
+                .profileId(profileEntity.getProfileId())
                 .email(profileEntity.getEmail())
                 .profileImageURL(profileEntity.getProfileImageURL())
                 .createdAt(profileEntity.getCreatedAt())
                 .updatedAt(profileEntity.getUpdatedAt())
-                .name(profileEntity.getName())
+                .firstName(profileEntity.getFirstName())
+                .lastName(profileEntity.getLastName())
                 .build();
     }
+
+    public List<ProfileSearchDTO> searchProfile(String search) {
+        List<ProfileEntity> entities = profileRepository.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseOrEmailContainingIgnoreCase(
+                search, search, search
+        );
+        return entities.stream()
+                .map(this::toSearchDTO)
+                .collect(Collectors.toList());
+    }
+
+    private ProfileSearchDTO toSearchDTO(ProfileEntity entity) {
+        if (entity == null) return null;
+        ProfileSearchDTO dto = new ProfileSearchDTO();
+        dto.setProfileId(entity.getProfileId());
+        dto.setFirstName(entity.getFirstName());
+        dto.setLastName(entity.getLastName());
+        dto.setEmail(entity.getEmail());
+        dto.setIsActive(entity.getIsActive());
+        dto.setProfileImageURL(entity.getProfileImageURL());
+        dto.setCreatedAt(entity.getCreatedAt() != null ? entity.getCreatedAt().toLocalDate() : null);
+        return dto;
+    }
+
+    public List<ProfileAdminDTO> getAllProfiles(){
+        List<ProfileEntity> entities= profileRepository.findAll();
+        return entities.stream()
+                .map(this::toAdminDTO)
+                .collect(Collectors.toList());
+    }
+
+    private ProfileAdminDTO toAdminDTO(ProfileEntity entity){
+        if(entity==null) return null;
+        ProfileAdminDTO dto=new ProfileAdminDTO();
+        dto.setProfileId(entity.getProfileId());
+        dto.setFirstName(entity.getFirstName());
+        dto.setLastName(entity.getLastName());
+        dto.setEmail(entity.getEmail());
+        dto.setIsActive(entity.getIsActive());
+        dto.setProfileImageURL(entity.getProfileImageURL());
+        dto.setCreatedAt(entity.getCreatedAt());
+        dto.setUpdatedAt(entity.getUpdatedAt());
+        return dto;
+    }
+
 }

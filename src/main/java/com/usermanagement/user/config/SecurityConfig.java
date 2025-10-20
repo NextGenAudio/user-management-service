@@ -37,9 +37,15 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "sonex/v1/auth/signup",
-                                "sonex/v1/auth/login",
-                                "sonex/v1/auth/activate"
+                                "/sonex/v1/auth/signup",
+                                "/sonex/v1/auth/login",
+                                "/sonex/v1/auth/activate",
+                                "/sonex/v1/auth/search-profile",
+                                "/requests",
+                                "/requests/{id}",
+                                "/sonex/v1/auth/all-profiles",
+                                "/requests/count",
+                                "/requests/{id}/status"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

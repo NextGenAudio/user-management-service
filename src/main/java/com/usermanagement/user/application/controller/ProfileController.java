@@ -1,8 +1,6 @@
 package com.usermanagement.user.application.controller;
 
-import com.usermanagement.user.application.dto.AuthDTO;
-import com.usermanagement.user.application.dto.EmailChangeDTO;
-import com.usermanagement.user.application.dto.ProfileDTO;
+import com.usermanagement.user.application.dto.*;
 
 import com.usermanagement.user.domain.service.ProfileService;
 import org.springframework.http.HttpStatus;
@@ -10,11 +8,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 @RestController
-@RequestMapping("sonex/v1/auth")
+@RequestMapping("/sonex/v1/auth")
 public class ProfileController {
     private final ProfileService profileService;
     public ProfileController(ProfileService profileService){
@@ -69,4 +68,19 @@ public class ProfileController {
     public ResponseEntity<ProfileDTO> changeEmail(@RequestBody EmailChangeDTO emailChangeDTO){
        return  ResponseEntity.status(HttpStatus.CREATED).body(profileService.changeEmail(emailChangeDTO));
    }
+
+   @GetMapping("/search-profile")
+    public ResponseEntity<List<ProfileSearchDTO>> searchProfile(@RequestParam String search){
+        List<ProfileSearchDTO> profiles= profileService.searchProfile(search);
+        if(Objects.isNull(profiles)){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+        return ResponseEntity.ok(profiles);
+    }
+
+    @GetMapping("/all-profiles")
+    public ResponseEntity<List<ProfileAdminDTO>> getAllProfiles(){
+        List<ProfileAdminDTO> profiles= profileService.getAllProfiles();
+        return ResponseEntity.ok(profiles);
+    }
 }
