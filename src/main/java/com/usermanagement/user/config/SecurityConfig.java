@@ -41,9 +41,13 @@ public class SecurityConfig {
                                 "/sonex/v1/auth/login",
                                 "/sonex/v1/auth/activate",
                                 "/sonex/v1/auth/search-profile",
+                                "/sonex/v1/auth/all-profiles",
+                                "/sonex/v1/auth/update-profile",
+                                "/mail/test",
+                                "/artists",
+                                "/artists/**",
                                 "/requests",
                                 "/requests/{id}",
-                                "/sonex/v1/auth/all-profiles",
                                 "/requests/count",
                                 "/requests/{id}/status"
                         ).permitAll()

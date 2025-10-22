@@ -8,5 +8,6 @@ import lombok.*;
 @NoArgsConstructor
 public class AuthDTO {
     private String email;
+    private String role;
     private String password;
 }

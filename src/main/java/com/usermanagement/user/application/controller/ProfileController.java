@@ -3,10 +3,12 @@ package com.usermanagement.user.application.controller;
 import com.usermanagement.user.application.dto.*;
 
 import com.usermanagement.user.domain.service.ProfileService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -53,11 +55,20 @@ public class ProfileController {
         }
     }
 
+    @PutMapping(value = "/update-profile", consumes = {"multipart/form-data"})
+    public ResponseEntity<ProfileDTO> updateProfile(
+            @ModelAttribute ProfileDTO profileDTO,
+            @RequestParam(value = "profileImage", required = false) MultipartFile profileImage,
+            HttpServletRequest request) {
+        ProfileDTO response = profileService.updateProfile(profileDTO, profileImage, request);
+        return ResponseEntity.ok(response);
+   }
+
    @GetMapping("/test")
     public String test(){
         return "hii";
-
    }
+
    @PostMapping("/changepassword")
     public ResponseEntity<String> changePassword(@RequestBody AuthDTO authDTO){
         String response= profileService.changePassword(authDTO);
@@ -83,4 +94,6 @@ public class ProfileController {
         List<ProfileAdminDTO> profiles= profileService.getAllProfiles();
         return ResponseEntity.ok(profiles);
     }
+
+
 }

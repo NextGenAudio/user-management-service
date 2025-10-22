@@ -1,6 +1,7 @@
 package com.usermanagement.user.application.controller;
 
 import com.usermanagement.user.application.dto.RequestBrief;
+import com.usermanagement.user.application.dto.RequestDTO;
 import com.usermanagement.user.domain.entity.RequestEntity;
 import com.usermanagement.user.domain.service.RequestService;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,7 @@ public class RequestController {
     }
 
     @GetMapping("/{id}")
-    public RequestEntity getRequestById(@PathVariable Long id) {
+    public RequestDTO getRequestById(@PathVariable Long id) {
         return requestService.getRequestById(id);
     }
 

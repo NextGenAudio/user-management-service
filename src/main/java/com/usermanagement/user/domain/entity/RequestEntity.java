@@ -27,7 +27,7 @@ public class RequestEntity {
     @Column(name = "email")
     private String email;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "profile_id")
     private ProfileEntity profile;
 
@@ -51,9 +51,6 @@ public class RequestEntity {
 
     @Column(name = "spotify")
     private String spotify;
-
-    @Column(name = "soundcloud")
-    private String soundcloud;
 
     @Column(name = "sample_work")
     private String sampleWork;

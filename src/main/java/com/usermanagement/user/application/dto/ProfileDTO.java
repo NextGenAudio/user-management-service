@@ -21,5 +21,6 @@ public class ProfileDTO {
     private Boolean isActive;
     private String activationToken;
     private String profileImageURL;
+    private RoleDTO role;
 
 }
