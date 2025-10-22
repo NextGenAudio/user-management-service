@@ -84,7 +84,7 @@ public class ProfileService {
 
                     try {
                         String uniqueFileName = System.currentTimeMillis() + "_" + profileImage.getOriginalFilename();
-                        String s3Key = username + "/images/" + uniqueFileName;
+                        String s3Key = username + "/profile_images/" + uniqueFileName;
 
                         // ✅ Compress image in-memory
                         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
