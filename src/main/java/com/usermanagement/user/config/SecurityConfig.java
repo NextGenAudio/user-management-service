@@ -49,7 +49,8 @@ public class SecurityConfig {
                                 "/requests",
                                 "/requests/{id}",
                                 "/requests/count",
-                                "/requests/{id}/status"
+                                "/requests/{id}/status",
+                                "/artists/search"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

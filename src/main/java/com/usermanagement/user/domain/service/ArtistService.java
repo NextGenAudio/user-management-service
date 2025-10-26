@@ -1,6 +1,10 @@
 package com.usermanagement.user.domain.service;
 
+import com.usermanagement.user.application.dto.ArtistSearchDTO;
+import com.usermanagement.user.application.dto.ProfileDTO;
+import com.usermanagement.user.application.dto.ProfileSearchDTO;
 import com.usermanagement.user.domain.entity.ArtistEntity;
+import com.usermanagement.user.domain.entity.ProfileEntity;
 import com.usermanagement.user.external.repository.ArtistRepository;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class ArtistService {
@@ -28,14 +33,26 @@ public class ArtistService {
     private S3Client s3Client;
     private final String bucketName = "sonex2";
 
-    public ResponseEntity<ArtistEntity> getArtist(Long profileId) {
+    public ResponseEntity<ArtistEntity> getArtistByProfileId(Long profileId) {
         ArtistEntity artist = artistRepository.findByProfileProfileId(profileId);
+
         if (artist != null) {
             return ResponseEntity.ok(artist);
         } else {
             return ResponseEntity.notFound().build();
         }
     }
+
+    public ResponseEntity<ArtistEntity> getArtistById(Long artistId) {
+        ArtistEntity artist = artistRepository.findById(artistId).orElse(null);
+
+        if (artist != null) {
+            return ResponseEntity.ok(artist);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
 
     public ArtistEntity updateArtist(Long profileId, ArtistEntity updatedArtist, MultipartFile artistImage) {
         ArtistEntity existingArtist = artistRepository.findByProfileProfileId(profileId);
@@ -99,4 +116,31 @@ public class ArtistService {
 
         return artistRepository.save(existingArtist);
     }
+
+    public List<ArtistSearchDTO> searchArtists(String query) {
+        List<ArtistEntity> artists = artistRepository.findByArtistNameContainingIgnoreCase(query);
+        return artists.stream()
+                .map(artist -> new ArtistSearchDTO(
+                        artist.getArtistId(),
+                        artist.getArtistName(),
+                        ProfileMapper.toDTO(artist.getProfile())
+                ))
+                .toList();
+    }
+    // ProfileMapper.java
+    public class ProfileMapper {
+        public static ProfileSearchDTO toDTO(ProfileEntity entity) {
+            ProfileSearchDTO dto = new ProfileSearchDTO();
+            dto.setProfileId(entity.getProfileId());
+            dto.setFirstName(entity.getFirstName());
+            dto.setLastName(entity.getLastName());
+            dto.setEmail(entity.getEmail());
+            dto.setIsActive(entity.getIsActive());
+            dto.setCreatedAt(entity.getCreatedAt());
+            dto.setProfileImageURL(entity.getProfileImageURL());
+            return dto;
+        }
+    }
+
+
 }

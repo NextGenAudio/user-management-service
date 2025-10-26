@@ -101,7 +101,9 @@ public class RequestService {
     }
 
     public Long countRequests(){
-        return requestRepository.count();
+        // Return the count of requests whose status name is 'pending' (case-insensitive)
+        long count = requestRepository.countByStatus_NameIgnoreCase("pending");
+        return Long.valueOf(count);
     }
 
     public String updateRequestStatus(Long requestId, Integer statusId) {

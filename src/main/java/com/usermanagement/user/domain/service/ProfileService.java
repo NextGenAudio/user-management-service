@@ -301,7 +301,7 @@ public class ProfileService {
         dto.setEmail(entity.getEmail());
         dto.setIsActive(entity.getIsActive());
         dto.setProfileImageURL(entity.getProfileImageURL());
-        dto.setCreatedAt(entity.getCreatedAt() != null ? entity.getCreatedAt().toLocalDate() : null);
+        dto.setCreatedAt(entity.getCreatedAt() != null ? entity.getCreatedAt() : null);
         return dto;
     }
 
