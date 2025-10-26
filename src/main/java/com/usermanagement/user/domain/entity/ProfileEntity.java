@@ -1,28 +1,58 @@
 package com.usermanagement.user.domain.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+
 @Entity
-@Table(name="users")
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@Table(name="profiles")
 public class ProfileEntity {
     @Id
+    @Column(name = "profile_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-    @Column(unique = true)
+    private Long profileId;
+
+    @Column(name = "first_name")
+    private String firstName;
+
+    @Column(name = "last_name")
+    private String lastName;
+
+    @Column(name="email", unique = true)
     private String email;
-    private String name;
+
+    @Column(name="password")
     private String password;
-    @Column(updatable = false)
+
+    @Column(name="created_at", updatable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;
+
     @UpdateTimestamp
+    @Column(name="updated_at")
     private LocalDateTime updatedAt;
+
+    @Column(name="is_active")
     private Boolean isActive=false;
+
+    @Column(name="activation_token")
     private String activationToken;
+
+    @Column(name="profile_image_url")
     private String profileImageURL;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "role_id")
+    private RoleEntity role;
+
 
     @PrePersist
     public void prePersist(){
@@ -30,116 +60,8 @@ public class ProfileEntity {
             isActive=false;
         }
     }
-    public ProfileEntity(){}
 
-    public ProfileEntity(String profileImageURL) {
-        this.profileImageURL = profileImageURL;
-    }
 
-    public ProfileEntity(long id, String email, String password, LocalDateTime createdAt, LocalDateTime updatedAt, boolean isActive, String activationToken,String profileImageURL, String name) {
-        this.id = id;
-        this.email = email;
-        this.password = password;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-        this.isActive=isActive;
-        this.profileImageURL = profileImageURL;
-        this.activationToken=activationToken;
-        this.name=name;
-    }
-    public long getId() {
-        return id;
-    }
 
-    public String getProfileImageURL() {
-        return profileImageURL;
-    }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setProfileImageURL(String profileImageURL) {
-        this.profileImageURL = profileImageURL;
-    }
-
-    public String getActivationToken() {
-        return activationToken;
-    }
-
-    public void setActivationToken(String activationToken) {
-        this.activationToken = activationToken;
-    }
-
-    public Boolean getActive() {
-        return isActive;
-    }
-
-    public void setActive(Boolean active) {
-        isActive = active;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-    public String getEmail() {
-        return email;
-    }
-    public void setEmail(String email) {
-        this.email = email;
-    }
-    public String getPassword() {
-        return password;
-    }
-    public void setPassword(String password) {
-        this.password = password;
-    }
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public static class ProfileBuilder{
-        private long id;
-        private String email;
-        private String password;
-        private LocalDateTime createdAt;
-        private LocalDateTime updatedAt;
-        private Boolean isActive;
-        private String activationToken;
-        private String profileImageURL;
-        private String name;
-
-        public ProfileBuilder id(long id){this.id=id; return this;}
-        public ProfileBuilder email(String email){this.email=email; return this;}
-        public ProfileBuilder password(String password){this.password=password; return this;}
-        public ProfileBuilder createdAt(LocalDateTime createdAt){this.createdAt=createdAt; return this;}
-        public ProfileBuilder updatedAt(LocalDateTime updatedAt){this.updatedAt=updatedAt; return this;}
-        public ProfileBuilder isActive(Boolean isActive){this.isActive=isActive; return this;}
-        public ProfileBuilder activationToken(String activationToken){this.activationToken=activationToken; return this;}
-        public ProfileBuilder profileImageURL(String profileImageURL){this.profileImageURL=profileImageURL;return this;}
-        public ProfileBuilder name(String name){this.name=name; return this;}
-
-        public ProfileEntity build(){
-            if (isActive==null){
-                isActive=false;
-            }
-            return new ProfileEntity(id,email,password,createdAt,updatedAt,isActive,activationToken,profileImageURL,name);
-        }
-    }
-    public static ProfileBuilder builder(){
-        return new ProfileBuilder();
-    }
 }

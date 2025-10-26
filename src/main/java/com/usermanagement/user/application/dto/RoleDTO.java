@@ -1,13 +1,14 @@
 package com.usermanagement.user.application.dto;
 
+import jakarta.persistence.Column;
 import lombok.*;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthDTO {
-    private String email;
-    private String role;
-    private String password;
+@Builder
+public class RoleDTO {
+    private Integer roleId;
+    private String roleName;
 }

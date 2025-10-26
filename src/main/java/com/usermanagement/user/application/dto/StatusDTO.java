@@ -6,8 +6,8 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthDTO {
-    private String email;
-    private String role;
-    private String password;
+@Builder
+public class StatusDTO {
+    private Integer id;
+    private String name;
 }

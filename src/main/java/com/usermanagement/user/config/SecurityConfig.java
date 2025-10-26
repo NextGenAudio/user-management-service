@@ -37,9 +37,20 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "sonex/v1/auth/signup",
-                                "sonex/v1/auth/login",
-                                "sonex/v1/auth/activate"
+                                "/sonex/v1/auth/signup",
+                                "/sonex/v1/auth/login",
+                                "/sonex/v1/auth/activate",
+                                "/sonex/v1/auth/search-profile",
+                                "/sonex/v1/auth/all-profiles",
+                                "/sonex/v1/auth/update-profile",
+                                "/mail/test",
+                                "/artists",
+                                "/artists/**",
+                                "/requests",
+                                "/requests/{id}",
+                                "/requests/count",
+                                "/requests/{id}/status",
+                                "/artists/search"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
@@ -68,7 +79,7 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationManager authenticationManager(){
-        DaoAuthenticationProvider authenticationProvider=new DaoAuthenticationProvider();
+        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
         authenticationProvider.setUserDetailsService(appUserDetailService);
         authenticationProvider.setPasswordEncoder(passwordEncoder());
         return new ProviderManager(authenticationProvider);

@@ -6,21 +6,17 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
-public class ProfileDTO {
+public class ProfileAdminDTO {
     private Long profileId;
     private String firstName;
     private String lastName;
     private String email;
-    private String password;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private String createdBy;
     private Boolean isActive;
-    private String activationToken;
     private String profileImageURL;
     private RoleDTO role;
-
 }
