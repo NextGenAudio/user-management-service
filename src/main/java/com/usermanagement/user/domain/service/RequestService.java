@@ -5,6 +5,7 @@ import com.usermanagement.user.domain.entity.*;
 import com.usermanagement.user.external.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.profiles.Profile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -89,11 +90,13 @@ public class RequestService {
             .orElse(null);
     }
 
-    public String sendRequest(RequestEntity requestEntity) {
+    public String sendRequest(RequestEntity requestEntity, Long profileId) {
         Status defaultStatus = statusRepository.findById(1)
                 .orElseThrow(() -> new RuntimeException("Default status not found"));
         System.out.println(requestEntity.toString());
         requestEntity.setStatus(defaultStatus);
+        ProfileEntity profile = profileRepository.findById(profileId).orElseThrow(() -> new RuntimeException("Profile not found"));
+        requestEntity.setProfile(profile);
         requestEntity.setCreatedAt(LocalDateTime.now());
         requestRepository.save(requestEntity);
 
