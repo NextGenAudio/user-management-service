@@ -7,6 +7,7 @@ COPY . .
 
 # Build the JAR file (use the correct command for your build tool)
 # For Maven:
+RUN chmod +x mvnw
 RUN ./mvnw clean package -DskipTests
 # For Gradle, use this instead:
 # RUN ./gradlew build -x test
