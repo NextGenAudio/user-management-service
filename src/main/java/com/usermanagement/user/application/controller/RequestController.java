@@ -33,8 +33,8 @@ public class RequestController {
     }
 
     @PostMapping
-    public String sendRequest(@RequestBody RequestEntity request) {
-        return requestService.sendRequest(request);
+    public String sendRequest(@RequestBody RequestEntity request, @RequestParam Long profileId) {
+        return requestService.sendRequest(request, profileId);
     }
 
     @PutMapping("/{id}/status")
